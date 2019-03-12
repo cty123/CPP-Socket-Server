@@ -1,6 +1,5 @@
-#include <nlohmann/json.hpp>
-
 #include "con_handler.hpp"
+#include "request_handler.hpp"
 
 // For convenience
 using json = nlohmann::json;
@@ -36,21 +35,22 @@ void con_handler::handle_read(const boost::system::error_code &err, size_t bytes
         try
         {
             auto j = json::parse(str);
-            std::string request(j["request"]);
-            if (!request.compare("test"))
-            {
-                con_handler::pointer con = conn_map[0];
 
-                con.get()->socket().async_write_some(
-                    boost::asio::buffer(message, max_length),
-                    boost::bind(&con_handler::handle_write,
-                                shared_from_this(),
-                                boost::asio::placeholders::error,
-                                boost::asio::placeholders::bytes_transferred));
-            }
+            request_handler r = request_handler();
+
+            r.handle_request(j);
+
+            con_handler::pointer con = conn_map[0];
+
+            con.get()->socket().async_write_some(
+                boost::asio::buffer(message, max_length),
+                boost::bind(&con_handler::handle_write,
+                            shared_from_this(),
+                            boost::asio::placeholders::error,
+                            boost::asio::placeholders::bytes_transferred));
         }
-        catch(const json::exception& e)
-        {   
+        catch (const json::exception &e)
+        {
             // Catch JSON exception when parsing fails
             std::cerr << e.what() << '\n';
         }
