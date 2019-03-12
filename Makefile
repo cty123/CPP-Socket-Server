@@ -6,7 +6,7 @@ SRC		:= src
 INCLUDE	:= include
 LIB		:= lib
 
-LIBRARIES	:= -lboost_regex
+LIBRARIES	:= -lboost_regex -lpthread
 
 ifeq ($(OS),Windows_NT)
 EXECUTABLE	:= main.exe

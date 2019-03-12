@@ -5,6 +5,8 @@
 // For convenience
 using json = nlohmann::json;
 
+extern std::vector<con_handler::pointer> conn_map;
+
 // Constructor
 con_handler::con_handler(boost::asio::io_service &io_service) : sock(io_service)
 {
@@ -34,23 +36,23 @@ void con_handler::handle_read(const boost::system::error_code &err, size_t bytes
         try
         {
             auto j = json::parse(str);
-            cout << j.dump() << endl;
+            std::string request(j["request"]);
+            if (!request.compare("test"))
+            {
+                con_handler::pointer con = conn_map[0];
+
+                con.get()->socket().async_write_some(
+                    boost::asio::buffer(message, max_length),
+                    boost::bind(&con_handler::handle_write,
+                                shared_from_this(),
+                                boost::asio::placeholders::error,
+                                boost::asio::placeholders::bytes_transferred));
+            }
         }
         catch(const json::exception& e)
         {   
             // Catch JSON exception when parsing fails
             std::cerr << e.what() << '\n';
-        }
-
-        if (!str.compare("Hello"))
-        {
-            //Write back data
-            sock.async_write_some(
-                boost::asio::buffer(message, max_length),
-                boost::bind(&con_handler::handle_write,
-                            shared_from_this(),
-                            boost::asio::placeholders::error,
-                            boost::asio::placeholders::bytes_transferred));
         }
     }
     else

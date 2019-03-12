@@ -1,4 +1,8 @@
 #include "server.hpp"
+#include <map>
+#include <vector>
+
+std::vector<con_handler::pointer> conn_map;
 
 int main()
 {
