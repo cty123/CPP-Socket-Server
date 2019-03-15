@@ -2,7 +2,7 @@
 #include <map>
 #include <vector>
 
-std::vector<con_handler::pointer> conn_map;
+std::unordered_map<std::string, con_handler *> conn_map;
 
 int main()
 {

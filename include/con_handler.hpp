@@ -1,10 +1,12 @@
 #include <boost/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/asio.hpp>
+#include <nlohmann/json.hpp>
 
 #include <iostream>
 #include <string>
 
+using json = nlohmann::json;
 using namespace boost::asio;
 using ip::tcp;
 using std::cout;
@@ -21,7 +23,14 @@ class con_handler : public boost::enable_shared_from_this<con_handler>
         max_length = 1024
     };
     char data[max_length];
-
+    std::unordered_map<std::string, int> m{
+        {"login", 1 },
+        {"register", 2 },
+        {"send_message", 3 },
+    };
+    void handle_request(json j);
+    void handle_login(json j);
+    void handle_send_msg(json j);
   public:
     // Smart pointer
     typedef boost::shared_ptr<con_handler> pointer;
